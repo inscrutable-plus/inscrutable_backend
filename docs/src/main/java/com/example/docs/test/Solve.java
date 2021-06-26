@@ -11,10 +11,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Member {
+public class Solve {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer solveId;
+    private Integer problemId;
     private String handle;
-    private Integer team;
 }
