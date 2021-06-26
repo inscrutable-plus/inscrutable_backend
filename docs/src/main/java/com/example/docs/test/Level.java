@@ -6,9 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Level {
-    private int level;
-    private int unsolved;
-    private int solved;
-    private int count;
-    private double percentage;
+    private Integer level;
+    private Integer unsolved;
+    private Integer solved;
+    private Integer count;
+    private Double percentage;
 }
