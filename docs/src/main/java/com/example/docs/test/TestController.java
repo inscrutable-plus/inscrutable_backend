@@ -1,5 +1,7 @@
 package com.example.docs.test;
 
+import java.util.ArrayList;
+
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,7 +69,7 @@ public class TestController {
             return solveRepository.findSolvedByTeam(team);
         if (handle != null)
             return solveRepository.findSolvedByHandle(handle);
-        return null;
+        return new ArrayList<Solve>();
     }
 
     // @GetMapping("/level/organization")
