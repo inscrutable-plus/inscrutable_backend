@@ -1,7 +1,5 @@
 package com.example.docs.test;
 
-import java.util.ArrayList;
-
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,15 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private ProblemRepository problemRepository;
+    @Autowired
+    private SolveRepository solveRepository;
 
     @Value("${secure.key}")
     private Integer key;
-
     @Value("${urls.level}")
     private String level;
 
     @PostMapping("/add")
     public @ResponseBody String addNewUser(@RequestBody Member body, @RequestParam Integer pass) {
+        
         if (pass.intValue() == key.intValue()) {
             // return body.getHandle();
             memberRepository.save(body);
@@ -43,6 +45,26 @@ public class TestController {
     @GetMapping("/team")
     public Iterable<Member> userList(@RequestParam Integer team) {
         return memberRepository.findByTeam(team);
+    }
+
+    @GetMapping("/problem/count/team")
+    public Integer solvedCountTeam(@RequestParam Integer team) {
+        return solveRepository.findCountByTeam(team);
+    }
+
+    @GetMapping("/problem/count/handle")
+    public Integer solvedCountTeam(@RequestParam String handle) {
+        return solveRepository.findCountByHandle(handle);
+    }
+
+    @GetMapping("/problem/solved/team")
+    public Iterable<Solve> solvedSolvedTeam(@RequestParam Integer team) {
+        return solveRepository.findSolvedByTeam(team);
+    }
+
+    @GetMapping("/problem/solved/handle")
+    public Iterable<Solve> solvedSolvedTeam(@RequestParam String handle) {
+        return solveRepository.findSolvedByHandle(handle);
     }
 
     // @GetMapping("/level/organization")
