@@ -28,7 +28,7 @@ public class TestController {
 
     @PostMapping("/add")
     public @ResponseBody String addNewUser(@RequestBody Member body, @RequestParam Integer pass) {
-        
+
         if (pass.intValue() == key.intValue()) {
             // return body.getHandle();
             memberRepository.save(body);
@@ -47,33 +47,36 @@ public class TestController {
         return memberRepository.findByTeam(team);
     }
 
-    @GetMapping("/problem/count/team")
-    public Integer solvedCountTeam(@RequestParam Integer team) {
-        return solveRepository.findCountByTeam(team);
+    @GetMapping("/problem/count")
+    public Integer solvedCountTeam(@RequestParam(required = false) Integer team,
+            @RequestParam(required = false) String handle) {
+        // TODO if team and handle is both not null
+        if (team != null)
+            return solveRepository.findCountByTeam(team);
+        if (handle != null)
+            return solveRepository.findCountByHandle(handle);
+        return 0;
     }
 
-    @GetMapping("/problem/count/handle")
-    public Integer solvedCountTeam(@RequestParam String handle) {
-        return solveRepository.findCountByHandle(handle);
-    }
+    @GetMapping("/problem/solved")
+    public Iterable<Solve> solvedSolvedTeam(@RequestParam(required = false) Integer team,
+            @RequestParam(required = false) String handle) {
 
-    @GetMapping("/problem/solved/team")
-    public Iterable<Solve> solvedSolvedTeam(@RequestParam Integer team) {
-        return solveRepository.findSolvedByTeam(team);
-    }
-
-    @GetMapping("/problem/solved/handle")
-    public Iterable<Solve> solvedSolvedTeam(@RequestParam String handle) {
-        return solveRepository.findSolvedByHandle(handle);
+        // TODO if team and handle is both not null
+        if (team != null)
+            return solveRepository.findSolvedByTeam(team);
+        if (handle != null)
+            return solveRepository.findSolvedByHandle(handle);
+        return null;
     }
 
     // @GetMapping("/level/organization")
     // public Iterable<Level> levelStats(@RequestParam Integer organizationId) {
     // Iterable<Member> arr = memberRepository.findByTeam(organizationId);
-        /*
-        *  TODO : search by team
-        * 
-        */
+    /*
+     * TODO : search by team
+     * 
+     */
     // }
 
     @GetMapping("/level/individual")
