@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 public class Problem {
     @Id
-    private int problemId;
+    private Integer problemId;
     private String title;
-    private int level;
+    private Integer level;
 }
