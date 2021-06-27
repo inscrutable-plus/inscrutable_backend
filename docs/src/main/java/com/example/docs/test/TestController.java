@@ -1,5 +1,10 @@
 package com.example.docs.test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@SuppressWarnings(value = "unchecked")
 @RestController
 @RequestMapping("/api")
 public class TestController {
@@ -20,11 +26,13 @@ public class TestController {
     private ProblemRepository problemRepository;
     @Autowired
     private SolveRepository solveRepository;
+    @Autowired
+    private TeamMemberRepository teamMemberRepository;
 
     @Value("${secure.key}")
     private Integer key;
-    @Value("${urls.level}")
-    private String level;
+    @Value("${urls.search}")
+    private String search;
 
     @PostMapping("/add")
     public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body, @RequestParam Integer pass) {
@@ -40,33 +48,32 @@ public class TestController {
         return memberRepository.findAll();
     }
 
-    @GetMapping("/team")
-    public Iterable<Member> userList(@RequestParam Integer team) {
-        return memberRepository.findByTeam(team);
-    }
+    // @GetMapping("/team")
+    // public Iterable<Member> userList(@RequestParam Integer team) {
+    // return memberRepository.findByTeam(team);
+    // }
 
     @GetMapping("/problem/count")
-    public Integer solvedCountTeam(@RequestParam(required = false) Integer team,
+    public Map<String, Object> solvedCountTeam(@RequestParam(required = false) Integer team,
             @RequestParam(required = false) String handle) {
-
         // TODO if team and handle is both not null
         if (team != null)
-            return solveRepository.findCountByTeam(team);
+            return ResultHandler.formatResult(solveRepository.findCountByTeam(team));
         if (handle != null)
-            return solveRepository.findCountByHandle(handle);
-        return 0;
+            return ResultHandler.formatResult(solveRepository.findCountByHandle(handle));
+        return ResultHandler.formatResult(0);
     }
 
     @GetMapping("/problem/solved")
-    public Iterable<Solve> solvedSolvedTeam(@RequestParam(required = false) Integer team,
+    public Map<String, Object> solvedSolvedTeam(@RequestParam(required = false) Integer team,
             @RequestParam(required = false) String handle) {
-
         // TODO if team and handle is both not null
         if (team != null)
-            return solveRepository.findSolvedByTeam(team);
+            return ResultHandler.formatResult(solveRepository.findSolvedByTeam(team));
         if (handle != null)
-            return solveRepository.findSolvedByHandle(handle);
-        return null;
+            return ResultHandler.formatResult(solveRepository.findSolvedByHandle(handle));
+
+        return ResultHandler.formatResult(null);
     }
 
     // @GetMapping("/level/organization")
@@ -78,25 +85,138 @@ public class TestController {
      */
     // }
 
-    @GetMapping("/level/individual")
-    public Level levelStats(@RequestParam String handle, @RequestParam Integer tier) {
+    // @GetMapping("/level/individual")
+    // public Level levelStats(@RequestParam String handle, @RequestParam Integer
+    // tier) {
+    // JSONObject res;
+    // String url = search;
+    // Level result = new Level();
+    // if (tier < 0 || tier > 30)
+    // return result;
+    // result.setLevel(tier);
+
+    // res = RestAPICaller.restCall(url + "tier:" + tier);
+    // Integer count = Integer.parseInt(res.get("count").toString());
+    // result.setCount(count);
+
+    // res = RestAPICaller.restCall(url + "tier:" + tier + "%20solved_by:" +
+    // handle);
+    // Integer solved = Integer.parseInt(res.get("count").toString());
+    // result.setSolved(solved);
+    // result.setUnsolved(count - solved);
+    // result.setPercentage(solved * 1.0 / count);
+
+    // return result;
+    // }
+
+    // TODO: Refactoring Required
+    @PostMapping(value = "/update")
+    public JSONObject update(@RequestBody JSONObject body) {
+
+        Boolean problem = Boolean.parseBoolean(body.get("problem").toString());
+        Boolean solve = Boolean.parseBoolean(body.get("solve").toString());
+        Integer problemPage = 1;
+        if (body.containsKey("problemPage")) {
+            try {
+                problemPage = Integer.parseInt(body.get("problemPage").toString());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                // TODO: exception handling
+            }
+        }
+        Integer solvePage = 1;
+        if (body.containsKey("solvePage")) {
+            try {
+                solvePage = Integer.parseInt(body.get("solvePage").toString());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                // TODO: exception handling
+            }
+        }
+
+        Integer problemCount = problemPage * 100;
+        if (body.containsKey("problemCount")) {
+            try {
+                problemCount = Integer.parseInt(body.get("problemCount").toString());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                // TODO: exception handling
+            }
+        }
+
+        Integer solveCount = solvePage * 100;
+        if (body.containsKey("solveCount")) {
+            try {
+                solveCount = Integer.parseInt(body.get("solveCount").toString());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                // TODO: exception handling
+            }
+        }
+        JSONObject result = new JSONObject();
         JSONObject res;
-        String url = level;
-        Level result = new Level();
-        if (tier < 0 || tier > 30)
-            return result;
-        result.setLevel(tier);
 
-        res = RestAPICaller.restCall(url + "tier:" + tier);
-        Integer count = Integer.parseInt(res.get("count").toString());
-        result.setCount(count);
+        result.put("updateProblem", problem);
+        result.put("updateSolve", solve);
 
-        res = RestAPICaller.restCall(url + "tier:" + tier + "%20solved_by:" + handle);
-        Integer solved = Integer.parseInt(res.get("count").toString());
-        result.setSolved(solved);
-        result.setUnsolved(count - solved);
-        result.setPercentage(solved * 1.0 / count);
+        List<Object> errors = new ArrayList<>();
+
+        if (problem.booleanValue() == true) {
+            do {
+                res = RestAPICaller.restCall(search + "&sort=id&sort_direction=asc&page=" + problemPage);
+                if (res == null) {
+                    result.put("result", "failed");
+                    result.put("errors", errors);
+                    result.put("message",
+                            "please try again later with following parameters (problemPage=" + problemPage + ")");
+                    return result;
+                }
+                List<Problem> problems = DataParser.parseProblems(res);
+                for (Problem item : problems) {
+                    try {
+                        problemRepository.save(item);
+                    } catch (Exception e) {
+                        errors.add(item.getProblemId());
+                    }
+                }
+                problemCount += ((JSONArray) res.get("items")).size();
+                problemPage++;
+            } while (problemCount < Integer.parseInt(res.get("count").toString()));
+        }
+        if (solve.booleanValue() == true) {
+            Iterable<Member> members = memberRepository.findAll();
+            for (Member m : members) {
+                solvePage = 1;
+                solveCount = 0;
+                do {
+                    res = RestAPICaller.restCall(
+                            search + "solved_by:" + m.getHandle() + "&sort=id&sort_direction=asc&page=" + solvePage);
+                    if (res == null) {
+                        result.put("result", "failed");
+                        result.put("errors", errors);
+                        result.put("message", "please try again later");
+                        return result;
+                    }
+                    List<Problem> problems = DataParser.parseProblems(res);
+                    for (Problem item : problems) {
+                        Solve s = new Solve(item.getProblemId(), m.getId());
+                        try {
+                            if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() > 1)
+                                solveRepository.insertRecord(s.getProblemId(), s.getId());
+                        } catch (Exception e) {
+                            errors.add(s);
+                        }
+                    }
+                    solveCount += ((JSONArray) res.get("items")).size();
+                    solvePage++;
+                } while (solveCount < Integer.parseInt(res.get("count").toString()));
+            }
+        }
+
+        result.put("result", "success");
+        result.put("errors", errors);
 
         return result;
     }
+
 }
