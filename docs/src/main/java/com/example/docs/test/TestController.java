@@ -27,12 +27,10 @@ public class TestController {
     private String level;
 
     @PostMapping("/add")
-    public @ResponseBody String addNewUser(@RequestBody Member body, @RequestParam Integer pass) {
+    public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body, @RequestParam Integer pass) {
 
         if (pass.intValue() == key.intValue()) {
-            // return body.getHandle();
-            memberRepository.save(body);
-            return "Done!";
+            return memberRepository.saveAll(body).toString();
         }
         return "Unathorized";
     }
