@@ -16,5 +16,4 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String handle;
-    private Integer team;
 }
