@@ -6,12 +6,11 @@ import javax.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
-@Entity
-public class Problem {
+public class Team {
     @Id
-    private Integer problemId;
-    private String title;
-    private Integer level;
+    private Integer id;
+    private String name;
 }
