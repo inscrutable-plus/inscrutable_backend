@@ -1,6 +1,7 @@
 package com.example.docs.test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -219,4 +220,21 @@ public class TestController {
         return result;
     }
 
+    @GetMapping("/teamstatistics")
+    public Map<String, Object> getRankByTeamId(@RequestParam("team") Integer team) {
+        Map<String, Object> res = new HashMap<>();
+
+        for(int i = 0; i <= 30; i++){
+            Map<String,Object> subResult = new HashMap<>();
+            Integer solved = problemRepository.countSolvedByTeamId(i, team);
+            Integer all = problemRepository.countByLevel(i);
+            subResult.put("todo", all - solved);
+            subResult.put("solved", solved);
+            subResult.put("all", all);
+            subResult.put("progress", Double.parseDouble(Integer.toString(solved)) / all);
+            res.put(Integer.toString(i), subResult);
+        }
+
+        return ResultHandler.formatResult(res);
+    }
 }
