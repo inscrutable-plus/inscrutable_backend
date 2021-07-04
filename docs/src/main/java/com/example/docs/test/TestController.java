@@ -29,6 +29,8 @@ public class TestController {
     private SolveRepository solveRepository;
     @Autowired
     private TeamMemberRepository teamMemberRepository;
+    @Autowired
+    private TeamRepository teamRepository;
 
     @Value("${secure.key}")
     private Integer key;
@@ -328,4 +330,41 @@ public class TestController {
 
         return ResultHandler.formatResult(res);
     }
+
+    @PostMapping("add/team")
+    public Map<String, Object> addToTeam(@RequestBody Map<String, Object> body) {
+        if (!body.containsKey("handle") || !body.containsKey("team")) {
+            return ResultHandler.formatResult("invalid member", false);
+        }
+
+        if (!body.containsKey("key") || !body.get("key").toString().equals(key.toString())) {
+            return ResultHandler.formatResult("key failed", false);
+        }
+
+        String handle = body.get("handle").toString();
+        String team = body.get("team").toString();
+
+        List<Integer> teamIds = teamRepository.findByName(team);
+        if(teamIds.size() == 0){
+            return ResultHandler.formatResult("no team with such name exist", false);
+        }
+        Integer teamId = teamIds.get(0);
+        List<Integer> ids = memberRepository.findByHandle(handle);
+        if(ids.size() == 0){
+            return ResultHandler.formatResult("no user with such handle exist", false);
+        }
+        Integer id = ids.get(0);
+
+        if (teamMemberRepository.findByIdAndTeamId(id, teamId).size() > 0) {
+            return ResultHandler.formatResult("user already in the team", false);
+        }
+        try {
+            teamMemberRepository.insertRecord(id, teamId);
+        } catch (Exception e) {
+            return ResultHandler.formatResult("failed to add\n\n" + e.getStackTrace(), false);
+        }
+
+        return ResultHandler.formatResult("success");
+    }
+
 }
