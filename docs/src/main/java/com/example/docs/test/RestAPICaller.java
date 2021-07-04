@@ -18,7 +18,7 @@ public class RestAPICaller {
                 System.out.println("Failed: HTTP error code : " + conn.getResponseCode());
                 throw new RuntimeException("Failed: HTTP error code : " + conn.getResponseCode());
             } else {
-                // System.out.println("발송 성공 to " + url);
+                System.out.println("발송 성공 to " + url);
             }
             StringBuilder sb = new StringBuilder();
 
