@@ -110,6 +110,45 @@ public class TestController {
     // return result;
     // }
 
+    @PostMapping(value = "/updatebyhandle")
+    public Map<String, Object> updateByHandle(@RequestBody Map<String, Object> body) {
+        Map<String, Object> result = new HashMap<>();
+        List<Integer> errors = new ArrayList<>();
+
+        int solvePage = 1;
+        int solveCount = 0;
+        if (!body.containsKey("handle")){
+            // result.put("error", "no handle provided");
+            return ResultHandler.formatResult(result, false);
+        }
+
+        String handle = body.get("handle").toString();
+        Integer id = memberRepository.findByHandle(handle);
+
+        JSONObject res;
+        do {
+            res = RestAPICaller
+                    .restCall(search + "solved_by:" + handle + "&sort=id&sort_direction=asc&page=" + solvePage);
+
+            List<Problem> problems = DataParser.parseProblems(res);
+            for (Problem item : problems) {
+                Solve s = new Solve(item.getProblemId(), id);
+                try {
+                    if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
+                        solveRepository.insertRecord(s.getProblemId(), s.getId());
+                } catch (Exception e) {
+                    errors.add(s.getProblemId());
+                }
+            }
+            solveCount += ((JSONArray) res.get("items")).size();
+            solvePage++;
+        } while (solveCount < Integer.parseInt(res.get("count").toString()));
+
+        result.put("errors", errors);
+
+        return ResultHandler.formatResult(result);
+    }
+
     // TODO: Refactoring Required
     @PostMapping(value = "/update")
     public JSONObject update(@RequestBody JSONObject body) {
@@ -224,8 +263,8 @@ public class TestController {
     public Map<String, Object> getRankByTeamId(@RequestParam("team") Integer team) {
         Map<String, Object> res = new HashMap<>();
 
-        for(int i = 0; i <= 30; i++){
-            Map<String,Object> subResult = new HashMap<>();
+        for (int i = 0; i <= 30; i++) {
+            Map<String, Object> subResult = new HashMap<>();
             Integer solved = problemRepository.countSolvedByTeamId(i, team);
             Integer all = problemRepository.countByLevel(i);
             subResult.put("todo", all - solved);
