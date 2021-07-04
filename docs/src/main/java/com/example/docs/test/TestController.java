@@ -69,13 +69,19 @@ public class TestController {
 
     @GetMapping("/problem/solved")
     public Map<String, Object> solvedSolvedTeam(@RequestParam(required = false) Integer team,
-            @RequestParam(required = false) String handle) {
+            @RequestParam(required = false) String handle, @RequestParam(required = false) Integer tier) {
         // TODO if team and handle is both not null
-        if (team != null)
-            return ResultHandler.formatResult(solveRepository.findSolvedByTeam(team));
-        if (handle != null)
-            return ResultHandler.formatResult(solveRepository.findSolvedByHandle(handle));
-
+        if (tier == null) {
+            if (team != null)
+                return ResultHandler.formatResult(solveRepository.findSolvedByTeam(team));
+            if (handle != null)
+                return ResultHandler.formatResult(solveRepository.findSolvedByHandle(handle));
+        } else {
+            if (team != null)
+                return ResultHandler.formatResult(solveRepository.findSolvedByTeamByTier(team, tier));
+            if (handle != null)
+                return ResultHandler.formatResult(solveRepository.findSolvedByHandleByTier(handle, tier));
+        }
         return ResultHandler.formatResult(null);
     }
 
@@ -376,6 +382,18 @@ public class TestController {
         }
 
         return ResultHandler.formatResult("success");
+    }
+
+    @GetMapping("/problem/unsolved")
+    public Map<String, Object> solvedUnsolvedTeam(@RequestParam(required = false) Integer team,
+            @RequestParam(required = false) String handle, @RequestParam Integer tier) {
+        // TODO if team and handle is both not null
+        if (team != null)
+            return ResultHandler.formatResult(solveRepository.findNotSolvedByTeamByTier(team, tier));
+        if (handle != null)
+            return ResultHandler.formatResult(solveRepository.findNotSolvedByHandleByTier(handle, tier));
+
+        return ResultHandler.formatResult(null);
     }
 
 }

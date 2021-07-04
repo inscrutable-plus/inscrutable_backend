@@ -16,8 +16,26 @@ public interface SolveRepository extends CrudRepository<Solve, SolvePrimaryKey> 
     @Query(value = "select problem.* from solve join member on solve.id = member.id join problem on solve.problem_id = problem.problem_id where member.handle = :handle", nativeQuery = true)
     List<Map<String, Object>> findSolvedByHandle(@Param("handle") String handle);
 
+    @Query(value = "select problem.* from solve join member on solve.id = member.id join problem on solve.problem_id = problem.problem_id where member.handle = :handle and problem.level = :tier", nativeQuery = true)
+    List<Map<String, Object>> findSolvedByHandleByTier(@Param("handle") String handle, @Param("tier") Integer tier);
+
+    @Query(value = "select pro.* from problem as pro where pro.problem_id not in (select problem.prpblem_id from solve join member on solve.id = member.id join problem on solve.problem_id = problem.problem_id where member.handle = :handle)", nativeQuery = true)
+    List<Map<String, Object>> findNotSolvedByHandle(@Param("handle") String handle);
+
+    @Query(value = "select pro.* from problem as pro where pro.problem_id not in (select problem.prpblem_id from solve join member on solve.id = member.id join problem on solve.problem_id = problem.problem_id where member.handle = :handle) and pro.level = :tier", nativeQuery = true)
+    List<Map<String, Object>> findNotSolvedByHandleByTier(@Param("handle") String handle, @Param("tier") Integer tier);
+
     @Query(value = "select distinct problem.* from solve join team_member on solve.id = team_member.id join problem on solve.problem_id = problem.problem_id where team_member.team_id = :teamId", nativeQuery = true)
     List<Map<String, Object>> findSolvedByTeam(@Param("teamId") Integer teamId);
+
+    @Query(value = "select distinct problem.* from solve join team_member on solve.id = team_member.id join problem on solve.problem_id = problem.problem_id where team_member.team_id = :teamId and problem.level = :tier", nativeQuery = true)
+    List<Map<String, Object>> findSolvedByTeamByTier(@Param("teamId") Integer teamId, @Param("tier") Integer tier);
+
+    @Query(value = "select distinct pro.* from problem as pro where pro.problem_id not in (select problem.problem_id from solve join team_member on solve.id = team_member.id join problem on solve.problem_id = problem.problem_id where team_member.team_id = :teamId)", nativeQuery = true)
+    List<Map<String, Object>> findNotSolvedByTeam(@Param("teamId") Integer teamId);
+
+    @Query(value = "select distinct pro.* from problem as pro where pro.problem_id not in (select problem.problem_id from solve join team_member on solve.id = team_member.id join problem on solve.problem_id = problem.problem_id where team_member.team_id = :teamId) and pro.level = :tier", nativeQuery = true)
+    List<Map<String, Object>> findNotSolvedByTeamByTier(@Param("teamId") Integer teamId, @Param("tier") Integer tier);
 
     @Query(value = "select count(distinct problem_id) from solve where id in (select id from team_member where team_id = :teamId)", nativeQuery = true)
     Integer findCountByTeam(@Param("teamId") Integer teamId);
