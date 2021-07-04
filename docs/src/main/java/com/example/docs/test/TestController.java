@@ -29,6 +29,8 @@ public class TestController {
     private SolveRepository solveRepository;
     @Autowired
     private TeamMemberRepository teamMemberRepository;
+    @Autowired
+    private TeamRepository teamRepository;
 
     @Value("${secure.key}")
     private Integer key;
@@ -113,7 +115,7 @@ public class TestController {
     // TODO: Refactoring Required
     @PostMapping(value = "/update")
     public JSONObject update(@RequestBody JSONObject body) {
-
+        
         Boolean problem = Boolean.parseBoolean(body.get("problem").toString());
         Boolean solve = Boolean.parseBoolean(body.get("solve").toString());
         Integer problemPage = 1;
@@ -237,4 +239,29 @@ public class TestController {
 
         return ResultHandler.formatResult(res);
     }
+
+    @PostMapping("add/team")
+    public Map<String, Object> addToTeam(@RequestBody Map<String, Object> body){
+        if(!body.containsKey("handle") || !body.containsKey("team")){
+            return ResultHandler.formatResult("invalid member");
+        }
+        
+        if( !body.containsKey("key") || !body.get("key").toString().equals(key.toString())){
+            return ResultHandler.formatResult("key failed");
+        }
+
+        String handle = body.get("handle").toString();
+        String team = body.get("team").toString();
+
+        Integer teamId = teamRepository.findByName(team);
+        Integer id = memberRepository.findByHandle(handle);
+
+        if(teamMemberRepository.findByIdAndTeamId(id, teamId).size() > 0){
+            return ResultHandler.formatResult("user already in the team", false);
+        }
+        teamMemberRepository.save(new TeamMember(id, teamId));
+
+        return ResultHandler.formatResult("success");
+    }
+    
 }
