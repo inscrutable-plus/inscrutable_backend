@@ -202,7 +202,7 @@ public class TestController {
                     for (Problem item : problems) {
                         Solve s = new Solve(item.getProblemId(), m.getId());
                         try {
-                            if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() > 1)
+                            if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
                                 solveRepository.insertRecord(s.getProblemId(), s.getId());
                         } catch (Exception e) {
                             errors.add(s);
