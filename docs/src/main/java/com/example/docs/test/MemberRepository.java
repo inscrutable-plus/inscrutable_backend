@@ -17,5 +17,5 @@ public interface MemberRepository extends CrudRepository<Member, Integer> {
     List<Member> findAll();
 
     @Query(value = "select member.id from member where handle = :handle limit 1", nativeQuery = true)
-    Integer findByHandle(@Param("handle") String handle);
+    List<Integer> findByHandle(@Param("handle") String handle);
 }

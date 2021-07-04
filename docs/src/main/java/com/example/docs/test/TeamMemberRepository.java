@@ -16,8 +16,8 @@ public interface TeamMemberRepository extends CrudRepository<TeamMember, TeamMem
     @Query(value = "select member.handle from member inner join team_member on team_member.id=member.id where team_member.team_id = :team_id", nativeQuery = true)
     List<Map<String, Object>> getHandlesByTeamId(@Param("team_id") Integer teamId);
 
-    @Query(value = "select * from team_member as tm where tm.id = :id and tm.team_id = team_id", nativeQuery = true)
-    List<TeamMember> findByIdAndTeamId(@Param("id") Integer id, @Param("team_id") Integer teamId);
+    @Query(value = "select * from team_member as tm where tm.id = :id and tm.team_id = :team_id", nativeQuery = true)
+    List<Map<String, Object>> findByIdAndTeamId(@Param("id") Integer id, @Param("team_id") Integer teamId);
 
     @Transactional
     @Modifying
