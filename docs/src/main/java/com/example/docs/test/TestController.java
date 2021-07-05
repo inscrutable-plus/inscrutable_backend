@@ -165,6 +165,46 @@ public class TestController {
         return ResultHandler.formatResult(result);
     }
 
+    @PostMapping(value = "/updateproblemsbytier")
+    public Map<String, Object> updateProblemsByTier(@RequestBody Map<String, Object> body) {
+        Map<String, Object> result = new HashMap<>();
+        List<Integer> errors = new ArrayList<>();
+
+        if (!body.containsKey("key") || !body.get("key").toString().equals(key.toString())) {
+            return ResultHandler.formatResult("key failed", false);
+        }
+
+        int page = 1;
+        int count = 0;
+        if (!body.containsKey("tier")) {
+            // result.put("error", "no tier provided");
+            return ResultHandler.formatResult(result, false);
+        }
+        Integer tier = Integer.parseInt(body.get("tier").toString());
+
+        JSONObject res;
+        do {
+            res = RestAPICaller.restCall(search + "tier:" + tier
+                    + "&sort=id&sort_direction=asc&page=" + page);
+
+            List<Problem> problems = DataParser.parseProblems(res);
+            for (Problem item : problems) {
+                try {
+                    problemRepository.save(item);
+                } catch (Exception e) {
+                    errors.add(item.getProblemId());
+                }
+            }
+            count += ((JSONArray) res.get("items")).size();
+            page++;
+        } while (count < Integer.parseInt(res.get("count").toString()));
+
+        result.put("errors", errors);
+
+        return ResultHandler.formatResult(result);
+
+    }
+
     @PostMapping(value = "/updatebytier")
     public Map<String, Object> updateByTier(@RequestBody Map<String, Object> body) {
         Map<String, Object> result = new HashMap<>();
