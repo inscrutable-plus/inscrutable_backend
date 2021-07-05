@@ -1,5 +1,6 @@
 package com.example.docs.test;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -148,10 +149,11 @@ public class TestController {
 
             List<Problem> problems = DataParser.parseProblems(res);
             for (Problem item : problems) {
-                Solve s = new Solve(item.getProblemId(), id);
+                Solve s = new Solve(item.getProblemId(), id, new Timestamp(System.currentTimeMillis()));
                 try {
                     if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
-                        solveRepository.insertRecord(s.getProblemId(), s.getId());
+                        solveRepository.insertRecord(s.getProblemId(), s.getId(),
+                                new Timestamp(System.currentTimeMillis()));
                 } catch (Exception e) {
                     errors.add(s.getProblemId());
                 }
@@ -184,10 +186,9 @@ public class TestController {
 
         JSONObject res;
         do {
-            res = RestAPICaller.restCall(search + "tier:" + tier
-                    + "&sort=id&sort_direction=asc&page=" + page);
+            res = RestAPICaller.restCall(search + "tier:" + tier + "&sort=id&sort_direction=asc&page=" + page);
 
-            if(res == null){
+            if (res == null) {
                 return ResultHandler.formatResult("error, please try again later", false);
             }
 
@@ -243,10 +244,11 @@ public class TestController {
 
                 List<Problem> problems = DataParser.parseProblems(res);
                 for (Problem item : problems) {
-                    Solve s = new Solve(item.getProblemId(), id);
+                    Solve s = new Solve(item.getProblemId(), id, new Timestamp(System.currentTimeMillis()));
                     try {
                         if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
-                            solveRepository.insertRecord(s.getProblemId(), s.getId());
+                            solveRepository.insertRecord(s.getProblemId(), s.getId(),
+                                    new Timestamp(System.currentTimeMillis()));
                     } catch (Exception e) {
                         errors.add(s.getProblemId());
                     }

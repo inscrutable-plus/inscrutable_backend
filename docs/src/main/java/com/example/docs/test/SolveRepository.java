@@ -1,5 +1,6 @@
 package com.example.docs.test;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,6 @@ public interface SolveRepository extends CrudRepository<Solve, SolvePrimaryKey> 
 
     @Transactional
     @Modifying
-    @Query(value = "insert into solve(problem_id, id) values(:problem_id, :id)", nativeQuery = true)
-    Integer insertRecord(@Param("problem_id") Integer problemId, @Param("id") Integer id) throws Exception;
+    @Query(value = "insert into solve(problem_id, id, solve_date) values(:problem_id, :id, :solve_date)", nativeQuery = true)
+    Integer insertRecord(@Param("problem_id") Integer problemId, @Param("id") Integer id, @Param("solve_date") Timestamp solveDate) throws Exception;
 }
