@@ -25,12 +25,26 @@ public class DataParser {
                 problem.setSolveCount(Integer.parseInt(rawObject.get("acceptedUserCount").toString()));
                 problem.setAverageTry(Float.parseFloat(rawObject.get("averageTries").toString()));
                 result.add(problem);
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 // TODO: Exception Handling
             }
         }
 
         return result;
+    }
+
+    public static String getSolvedClass(JSONObject res) {
+        String s = res.get("class").toString();
+
+        if (!res.get("classDecoration").equals("none")) {
+            s += "+";
+        }
+
+        if (res.get("classDecoration").equals("gold")) {
+            s += "+";
+        }
+
+        return s;
     }
 
 }
