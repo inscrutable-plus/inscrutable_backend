@@ -22,6 +22,8 @@ public class DataParser {
                 problem.setProblemId(Integer.parseInt(rawObject.get("problemId").toString()));
                 problem.setTitle(rawObject.get("titleKo").toString());
                 problem.setLevel(Integer.parseInt(rawObject.get("level").toString()));
+                problem.setSolveCount(Integer.parseInt(rawObject.get("acceptedUserCount").toString()));
+                problem.setAverageTry(Float.parseFloat(rawObject.get("averageTries").toString()));
                 result.add(problem);
             } catch (NumberFormatException e){
                 // TODO: Exception Handling

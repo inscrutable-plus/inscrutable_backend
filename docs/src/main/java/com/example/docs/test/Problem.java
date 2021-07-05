@@ -14,4 +14,6 @@ public class Problem {
     private Integer problemId;
     private String title;
     private Integer level;
+    private Integer solveCount;
+    private Float averageTry;
 }
