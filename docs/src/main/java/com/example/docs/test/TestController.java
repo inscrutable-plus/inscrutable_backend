@@ -37,6 +37,8 @@ public class TestController {
     private Integer key;
     @Value("${urls.search}")
     private String search;
+    @Value("${urls.userhandle}")
+    private String userhandle;
 
     @PostMapping("/add")
     public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body, @RequestParam Integer pass) {
@@ -48,8 +50,8 @@ public class TestController {
     }
 
     @GetMapping("/all")
-    public @ResponseBody Iterable<Member> userList() {
-        return memberRepository.findAll();
+    public Map<String, Object> userList() {
+        return ResultHandler.formatResult(memberRepository.findAllWithSolveCount());
     }
 
     // @GetMapping("/team")
@@ -86,6 +88,38 @@ public class TestController {
         return ResultHandler.formatResult(null);
     }
 
+
+
+    @PostMapping(value = "/userupdate")
+    public Map<String, Object> userUpdate(@RequestBody Map<String, Object> body) {
+        Map<String, Object> result = new HashMap<>();
+        if (!body.containsKey("key") || !body.get("key").toString().equals(key.toString())) {
+            return ResultHandler.formatResult("key failed", false);
+        }
+        if (!body.containsKey("handle")) {
+            // result.put("error", "no handle provided");
+            return ResultHandler.formatResult(result, false);
+        }
+
+        String handle = body.get("handle").toString();
+
+        JSONObject res;
+
+        res = RestAPICaller.restCall(userhandle + handle);
+
+        Member m = new Member();
+        List<Integer> list = memberRepository.findByHandle(handle);
+        m.setHandle(handle);
+        m.setRating(Integer.parseInt(res.get("rating").toString()));
+        m.setSolvedClass(DataParser.getSolvedClass(res));
+        if (!list.isEmpty()) {
+            m.setId(list.get(0));
+        }
+        memberRepository.save(m);
+
+        return ResultHandler.formatResult(result);
+    }
+  
     @PostMapping(value = "/updatebyhandle")
     public Map<String, Object> updateByHandle(@RequestBody Map<String, Object> body) {
         Map<String, Object> result = new HashMap<>();
@@ -154,7 +188,7 @@ public class TestController {
         JSONObject res;
         do {
             res = RestAPICaller.restCall(search + "tier:" + tier + "&sort=id&sort_direction=asc&page=" + page);
-
+          
             if (res == null) {
                 return ResultHandler.formatResult("error, please try again later", false);
             }
