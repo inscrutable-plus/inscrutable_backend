@@ -1,5 +1,6 @@
 package com.example.docs.test;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,38 +88,7 @@ public class TestController {
         return ResultHandler.formatResult(null);
     }
 
-    // @GetMapping("/level/organization")
-    // public Iterable<Level> levelStats(@RequestParam Integer organizationId) {
-    // Iterable<Member> arr = memberRepository.findByTeam(organizationId);
-    /*
-     * TODO : search by team
-     * 
-     */
-    // }
 
-    // @GetMapping("/level/individual")
-    // public Level levelStats(@RequestParam String handle, @RequestParam Integer
-    // tier) {
-    // JSONObject res;
-    // String url = search;
-    // Level result = new Level();
-    // if (tier < 0 || tier > 30)
-    // return result;
-    // result.setLevel(tier);
-
-    // res = RestAPICaller.restCall(url + "tier:" + tier);
-    // Integer count = Integer.parseInt(res.get("count").toString());
-    // result.setCount(count);
-
-    // res = RestAPICaller.restCall(url + "tier:" + tier + "%20solved_by:" +
-    // handle);
-    // Integer solved = Integer.parseInt(res.get("count").toString());
-    // result.setSolved(solved);
-    // result.setUnsolved(count - solved);
-    // result.setPercentage(solved * 1.0 / count);
-
-    // return result;
-    // }
 
     @PostMapping(value = "/userupdate")
     public Map<String, Object> userUpdate(@RequestBody Map<String, Object> body) {
@@ -149,7 +119,7 @@ public class TestController {
 
         return ResultHandler.formatResult(result);
     }
-
+  
     @PostMapping(value = "/updatebyhandle")
     public Map<String, Object> updateByHandle(@RequestBody Map<String, Object> body) {
         Map<String, Object> result = new HashMap<>();
@@ -180,10 +150,11 @@ public class TestController {
 
             List<Problem> problems = DataParser.parseProblems(res);
             for (Problem item : problems) {
-                Solve s = new Solve(item.getProblemId(), id);
+                Solve s = new Solve(item.getProblemId(), id, new Timestamp(System.currentTimeMillis()));
                 try {
                     if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
-                        solveRepository.insertRecord(s.getProblemId(), s.getId());
+                        solveRepository.insertRecord(s.getProblemId(), s.getId(),
+                                new Timestamp(System.currentTimeMillis()));
                 } catch (Exception e) {
                     errors.add(s.getProblemId());
                 }
@@ -217,6 +188,10 @@ public class TestController {
         JSONObject res;
         do {
             res = RestAPICaller.restCall(search + "tier:" + tier + "&sort=id&sort_direction=asc&page=" + page);
+          
+            if (res == null) {
+                return ResultHandler.formatResult("error, please try again later", false);
+            }
 
             List<Problem> problems = DataParser.parseProblems(res);
             for (Problem item : problems) {
@@ -270,10 +245,11 @@ public class TestController {
 
                 List<Problem> problems = DataParser.parseProblems(res);
                 for (Problem item : problems) {
-                    Solve s = new Solve(item.getProblemId(), id);
+                    Solve s = new Solve(item.getProblemId(), id, new Timestamp(System.currentTimeMillis()));
                     try {
                         if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
-                            solveRepository.insertRecord(s.getProblemId(), s.getId());
+                            solveRepository.insertRecord(s.getProblemId(), s.getId(),
+                                    new Timestamp(System.currentTimeMillis()));
                     } catch (Exception e) {
                         errors.add(s.getProblemId());
                     }
@@ -287,119 +263,6 @@ public class TestController {
 
         return ResultHandler.formatResult(result);
     }
-
-    // // TODO: Refactoring Required
-    // @PostMapping(value = "/update")
-    // public JSONObject update(@RequestBody JSONObject body) {
-
-    // Boolean problem = Boolean.parseBoolean(body.get("problem").toString());
-    // Boolean solve = Boolean.parseBoolean(body.get("solve").toString());
-    // Integer problemPage = 1;
-    // if (body.containsKey("problemPage")) {
-    // try {
-    // problemPage = Integer.parseInt(body.get("problemPage").toString());
-    // } catch (NumberFormatException e) {
-    // e.printStackTrace();
-    // // TODO: exception handling
-    // }
-    // }
-    // Integer solvePage = 1;
-    // if (body.containsKey("solvePage")) {
-    // try {
-    // solvePage = Integer.parseInt(body.get("solvePage").toString());
-    // } catch (NumberFormatException e) {
-    // e.printStackTrace();
-    // // TODO: exception handling
-    // }
-    // }
-
-    // Integer problemCount = problemPage * 100;
-    // if (body.containsKey("problemCount")) {
-    // try {
-    // problemCount = Integer.parseInt(body.get("problemCount").toString());
-    // } catch (NumberFormatException e) {
-    // e.printStackTrace();
-    // // TODO: exception handling
-    // }
-    // }
-
-    // Integer solveCount = solvePage * 100;
-    // if (body.containsKey("solveCount")) {
-    // try {
-    // solveCount = Integer.parseInt(body.get("solveCount").toString());
-    // } catch (NumberFormatException e) {
-    // e.printStackTrace();
-    // // TODO: exception handling
-    // }
-    // }
-    // JSONObject result = new JSONObject();
-    // JSONObject res;
-
-    // result.put("updateProblem", problem);
-    // result.put("updateSolve", solve);
-
-    // List<Object> errors = new ArrayList<>();
-
-    // if (problem.booleanValue() == true) {
-    // do {
-    // res = RestAPICaller.restCall(search + "&sort=id&sort_direction=asc&page=" +
-    // problemPage);
-    // if (res == null) {
-    // result.put("result", "failed");
-    // result.put("errors", errors);
-    // result.put("message",
-    // "please try again later with following parameters (problemPage=" +
-    // problemPage + ")");
-    // return result;
-    // }
-    // List<Problem> problems = DataParser.parseProblems(res);
-    // for (Problem item : problems) {
-    // try {
-    // problemRepository.save(item);
-    // } catch (Exception e) {
-    // errors.add(item.getProblemId());
-    // }
-    // }
-    // problemCount += ((JSONArray) res.get("items")).size();
-    // problemPage++;
-    // } while (problemCount < Integer.parseInt(res.get("count").toString()));
-    // }
-    // if (solve.booleanValue() == true) {
-    // Iterable<Member> members = memberRepository.findAll();
-    // for (Member m : members) {
-    // solvePage = 1;
-    // solveCount = 0;
-    // do {
-    // res = RestAPICaller.restCall(
-    // search + "solved_by:" + m.getHandle() + "&sort=id&sort_direction=asc&page=" +
-    // solvePage);
-    // if (res == null) {
-    // result.put("result", "failed");
-    // result.put("errors", errors);
-    // result.put("message", "please try again later");
-    // return result;
-    // }
-    // List<Problem> problems = DataParser.parseProblems(res);
-    // for (Problem item : problems) {
-    // Solve s = new Solve(item.getProblemId(), m.getId());
-    // try {
-    // if (solveRepository.findByIds(s.getId(), s.getProblemId()).size() == 0)
-    // solveRepository.insertRecord(s.getProblemId(), s.getId());
-    // } catch (Exception e) {
-    // errors.add(s);
-    // }
-    // }
-    // solveCount += ((JSONArray) res.get("items")).size();
-    // solvePage++;
-    // } while (solveCount < Integer.parseInt(res.get("count").toString()));
-    // }
-    // }
-
-    // result.put("result", "success");
-    // result.put("errors", errors);
-
-    // return result;
-    // }
 
     @GetMapping("/teamstatistics")
     public Map<String, Object> getRankByTeamId(@RequestParam("team") Integer team) {

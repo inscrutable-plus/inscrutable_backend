@@ -1,5 +1,7 @@
 package com.example.docs.test;
 
+import java.sql.Timestamp;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -22,4 +24,6 @@ public class Solve {
     @Id
     @ManyToOne(targetEntity = Member.class)
     private Integer id;
+
+    private Timestamp solveDate;
 }
