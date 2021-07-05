@@ -187,6 +187,10 @@ public class TestController {
             res = RestAPICaller.restCall(search + "tier:" + tier
                     + "&sort=id&sort_direction=asc&page=" + page);
 
+            if(res == null){
+                return ResultHandler.formatResult("error, please try again later", false);
+            }
+
             List<Problem> problems = DataParser.parseProblems(res);
             for (Problem item : problems) {
                 try {
