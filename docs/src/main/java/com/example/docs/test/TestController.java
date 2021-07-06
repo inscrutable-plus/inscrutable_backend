@@ -40,14 +40,14 @@ public class TestController {
     @Value("${urls.userhandle}")
     private String userhandle;
 
-    @PostMapping("/add")
-    public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body, @RequestParam Integer pass) {
+    // @PostMapping("/add")
+    // public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body, @RequestParam Integer pass) {
 
-        if (pass.intValue() == key.intValue()) {
-            return memberRepository.saveAll(body).toString();
-        }
-        return "Unathorized";
-    }
+    //     if (pass.intValue() == key.intValue()) {
+    //         return memberRepository.saveAll(body).toString();
+    //     }
+    //     return "Unathorized";
+    // }
 
     @GetMapping("/all")
     public Map<String, Object> userList() {
@@ -88,8 +88,6 @@ public class TestController {
         return ResultHandler.formatResult(null);
     }
 
-
-
     @PostMapping(value = "/userupdate")
     public Map<String, Object> userUpdate(@RequestBody Map<String, Object> body) {
         Map<String, Object> result = new HashMap<>();
@@ -112,6 +110,7 @@ public class TestController {
         m.setHandle(handle);
         m.setRating(Integer.parseInt(res.get("rating").toString()));
         m.setSolvedClass(DataParser.getSolvedClass(res));
+        m.setRank(Integer.parseInt(res.get("rank").toString()));
         if (!list.isEmpty()) {
             m.setId(list.get(0));
         }
@@ -119,7 +118,7 @@ public class TestController {
 
         return ResultHandler.formatResult(result);
     }
-  
+
     @PostMapping(value = "/updatebyhandle")
     public Map<String, Object> updateByHandle(@RequestBody Map<String, Object> body) {
         Map<String, Object> result = new HashMap<>();
@@ -188,7 +187,7 @@ public class TestController {
         JSONObject res;
         do {
             res = RestAPICaller.restCall(search + "tier:" + tier + "&sort=id&sort_direction=asc&page=" + page);
-          
+
             if (res == null) {
                 return ResultHandler.formatResult("error, please try again later", false);
             }
@@ -329,5 +328,7 @@ public class TestController {
 
         return ResultHandler.formatResult(null);
     }
+
+
 
 }

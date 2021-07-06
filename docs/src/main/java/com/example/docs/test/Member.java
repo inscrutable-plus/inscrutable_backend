@@ -18,4 +18,5 @@ public class Member {
     private String handle;
     private Integer rating;
     private String solvedClass;
+    private Integer rank;
 }
