@@ -13,13 +13,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-@IdClass(TeamMemberPrimaryKey.class)
-public class TeamMember {
+@IdClass(RankingPrimaryKey.class)
+public class Ranking {
+    @Id
+    private Integer weekId;
+
+    private Integer rank;
+
     @Id
     @ManyToOne(targetEntity = Member.class)
     private Integer id;
-    
-    @Id
-    @ManyToOne(targetEntity = Team.class)
-    private Integer teamId; 
+    private Integer score;
 }
