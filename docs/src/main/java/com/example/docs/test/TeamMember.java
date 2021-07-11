@@ -3,7 +3,6 @@ package com.example.docs.test;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
@@ -21,7 +20,6 @@ public class TeamMember {
     private Integer id;
     
     @Id
-    @JoinColumn(name = "id")
     @ManyToOne(targetEntity = Team.class)
-    private Integer teamId;
+    private Integer teamId; 
 }
