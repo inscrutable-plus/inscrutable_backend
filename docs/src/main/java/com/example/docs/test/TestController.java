@@ -3,6 +3,7 @@ package com.example.docs.test;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @SuppressWarnings(value = "unchecked")
@@ -32,6 +32,8 @@ public class TestController {
     private TeamMemberRepository teamMemberRepository;
     @Autowired
     private TeamRepository teamRepository;
+    @Autowired
+    private RankingRepository rankingRepository;
 
     @Value("${secure.key}")
     private Integer key;
@@ -40,13 +42,22 @@ public class TestController {
     @Value("${urls.userhandle}")
     private String userhandle;
 
-    // @PostMapping("/add")
-    // public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body, @RequestParam Integer pass) {
+    private long june26 = 1624665600000L;
+    private long week = 604800000;
 
-    //     if (pass.intValue() == key.intValue()) {
-    //         return memberRepository.saveAll(body).toString();
-    //     }
-    //     return "Unathorized";
+    // @PostMapping("/add")
+    // public @ResponseBody String addNewUser(@RequestBody Iterable<Member> body,
+    // @RequestParam Integer pass) {
+
+    // if (pass.intValue() == key.intValue()) {
+    // return memberRepository.saveAll(body).toString();
+    // }
+    // return "Unathorized";
+    // }
+
+    // @GetMapping("/june26")
+    // public Map<String,Object> checkDate(){
+    // return ResultHandler.formatResult(june26);
     // }
 
     @GetMapping("/all")
@@ -329,6 +340,47 @@ public class TestController {
         return ResultHandler.formatResult(null);
     }
 
+    @GetMapping("/rank")
+    public Map<String, Object> getRank() {
+        List<Map<String, Object>> result = new ArrayList<>();
 
+        Iterator<Map<String, Object>> it = rankingRepository.findAllList().iterator();
+
+        while (it.hasNext()) {
+            result.add(it.next());
+        }
+
+        Long currTimeLong = System.currentTimeMillis();
+        currTimeLong -= currTimeLong % week;
+
+        Integer weekId = Math.toIntExact((currTimeLong-june26)/week);
+
+        List<Map<String, Object>> scores = solveRepository.findScoresByTime(new Timestamp(currTimeLong), new Timestamp(currTimeLong + week));
+
+        for(Map<String,Object> record : scores){
+            Integer id = Integer.parseInt(record.get("id").toString());
+            Integer score = Integer.parseInt(record.get("score").toString());
+
+            if(rankingRepository.findByPKList(weekId, id).size() == 0){
+                rankingRepository.insertRecord(weekId, id, score);
+            } else {
+                rankingRepository.updateRecord(weekId, id, score);
+            }
+        }
+
+        return ResultHandler.formatResult(result);
+    }
+
+    @GetMapping("/problem/weekly")
+    public Map<String, Object> getSolvedWeekly(@RequestParam("weekId") Integer weekId,
+            @RequestParam("handle") String handle) {
+        Integer id = memberRepository.findByHandle(handle).get(0);
+        Timestamp currTimestamp = new Timestamp(june26 + weekId * week);
+        Timestamp nextTimestamp = new Timestamp(june26 + (weekId + 1) * week);
+
+        List<Map<String, Object>> result = solveRepository.findSolveListByIdAndDate(id, currTimestamp, nextTimestamp);
+
+        return ResultHandler.formatResult(result);
+    }
 
 }
