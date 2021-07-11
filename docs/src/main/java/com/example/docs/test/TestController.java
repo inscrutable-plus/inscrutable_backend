@@ -353,7 +353,7 @@ public class TestController {
         Long currTimeLong = System.currentTimeMillis();
         currTimeLong -= currTimeLong % week;
 
-        Integer weekId = Math.toIntExact((currTimeLong-june26)/week);
+        Integer weekId = Math.toIntExact((currTimeLong-june26)/week) + 1;
 
         List<Map<String, Object>> scores = solveRepository.findScoresByTime(new Timestamp(currTimeLong), new Timestamp(currTimeLong + week));
 
@@ -376,6 +376,7 @@ public class TestController {
             @RequestParam("handle") String handle) {
         Integer id = memberRepository.findByHandle(handle).get(0);
         Timestamp currTimestamp = new Timestamp(june26 + weekId * week);
+        // System.out.println(currTimestamp);
         Timestamp nextTimestamp = new Timestamp(june26 + (weekId + 1) * week);
 
         List<Map<String, Object>> result = solveRepository.findSolveListByIdAndDate(id, currTimestamp, nextTimestamp);
