@@ -43,7 +43,7 @@ public class TestController {
     @Value("${urls.userhandle}")
     private String userhandle;
 
-    private long june26 = 1624665600000L;
+    private long june26 = 1624719600000L;
     private long week = 604800000;
 
     // @PostMapping("/add")
@@ -364,9 +364,12 @@ public class TestController {
         }
 
         Long currTimeLong = System.currentTimeMillis();
-        currTimeLong -= currTimeLong % week;
+        currTimeLong -= (currTimeLong % week);
+        currTimeLong -= 1625184000000L - june26;
 
         Integer weekId = Math.toIntExact((currTimeLong - june26) / week) + 1;
+
+        System.out.println(new Timestamp(currTimeLong).toString());
 
         List<Map<String, Object>> scores = solveRepository.findScoresByTime(new Timestamp(currTimeLong),
                 new Timestamp(currTimeLong + week));
