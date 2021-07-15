@@ -366,7 +366,7 @@ public class TestController {
         Long currTimeLong = System.currentTimeMillis();
         currTimeLong -= currTimeLong % week;
 
-        Integer weekId = Math.toIntExact((currTimeLong - june26) / week);
+        Integer weekId = Math.toIntExact((currTimeLong - june26) / week) + 1;
 
         List<Map<String, Object>> scores = solveRepository.findScoresByTime(new Timestamp(currTimeLong),
                 new Timestamp(currTimeLong + week));
