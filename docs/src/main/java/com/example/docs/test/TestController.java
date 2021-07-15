@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -347,21 +348,30 @@ public class TestController {
         Iterator<Map<String, Object>> it = rankingRepository.findAllList().iterator();
 
         while (it.hasNext()) {
-            result.add(it.next());
+            Map<String, Object> mp = it.next();
+            Optional<Member> om = memberRepository.findById(Integer.parseInt(mp.get("id").toString()));
+            if(!om.isPresent()){
+                return ResultHandler.formatResult("invalid id", false);
+            }
+
+            mp.put("handle", om.get().getHandle());
+            mp.remove("id");
+            result.add(mp);
         }
 
         Long currTimeLong = System.currentTimeMillis();
         currTimeLong -= currTimeLong % week;
 
-        Integer weekId = Math.toIntExact((currTimeLong-june26)/week) + 1;
+        Integer weekId = Math.toIntExact((currTimeLong - june26) / week) + 1;
 
-        List<Map<String, Object>> scores = solveRepository.findScoresByTime(new Timestamp(currTimeLong), new Timestamp(currTimeLong + week));
+        List<Map<String, Object>> scores = solveRepository.findScoresByTime(new Timestamp(currTimeLong),
+                new Timestamp(currTimeLong + week));
 
-        for(Map<String,Object> record : scores){
+        for (Map<String, Object> record : scores) {
             Integer id = Integer.parseInt(record.get("id").toString());
             Integer score = Integer.parseInt(record.get("score").toString());
 
-            if(rankingRepository.findByPKList(weekId, id).size() == 0){
+            if (rankingRepository.findByPKList(weekId, id).size() == 0) {
                 rankingRepository.insertRecord(weekId, id, score);
             } else {
                 rankingRepository.updateRecord(weekId, id, score);
