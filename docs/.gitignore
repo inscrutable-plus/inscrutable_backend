@@ -34,9 +34,3 @@ build/
 
 ### DB Details ###
 application.yml
-
-### Others ###
-diagram.png
-model.mwb
-model.mwb.bak
-*.sql
