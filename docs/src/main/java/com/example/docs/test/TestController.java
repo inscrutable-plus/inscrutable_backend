@@ -350,11 +350,11 @@ public class TestController {
         while (it.hasNext()) {
             Map<String, Object> mp = new HashMap<>();
             Map<String, Object> nextMap = it.next();
-            for(String key : nextMap.keySet()){
+            for (String key : nextMap.keySet()) {
                 mp.put(key, nextMap.get(key));
             }
             Optional<Member> om = memberRepository.findById(Integer.parseInt(mp.get("id").toString()));
-            if(!om.isPresent()){
+            if (!om.isPresent()) {
                 return ResultHandler.formatResult("invalid id", false);
             }
 
@@ -389,9 +389,9 @@ public class TestController {
     public Map<String, Object> getSolvedWeekly(@RequestParam("weekId") Integer weekId,
             @RequestParam("handle") String handle) {
         Integer id = memberRepository.findByHandle(handle).get(0);
-        Timestamp currTimestamp = new Timestamp(june26 + weekId * week);
+        Timestamp currTimestamp = new Timestamp(june26 + (weekId - 1) * week);
         // System.out.println(currTimestamp);
-        Timestamp nextTimestamp = new Timestamp(june26 + (weekId + 1) * week);
+        Timestamp nextTimestamp = new Timestamp(june26 + (weekId) * week);
 
         List<Map<String, Object>> result = solveRepository.findSolveListByIdAndDate(id, currTimestamp, nextTimestamp);
 
