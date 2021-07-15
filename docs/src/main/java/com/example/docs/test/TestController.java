@@ -348,7 +348,11 @@ public class TestController {
         Iterator<Map<String, Object>> it = rankingRepository.findAllList().iterator();
 
         while (it.hasNext()) {
-            Map<String, Object> mp = it.next();
+            Map<String, Object> mp = new HashMap<>();
+            Map<String, Object> nextMap = it.next();
+            for(String key : nextMap.keySet()){
+                mp.put(key, nextMap.get(key));
+            }
             Optional<Member> om = memberRepository.findById(Integer.parseInt(mp.get("id").toString()));
             if(!om.isPresent()){
                 return ResultHandler.formatResult("invalid id", false);
